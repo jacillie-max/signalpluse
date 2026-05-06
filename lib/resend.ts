@@ -4,7 +4,7 @@ export const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function sendBriefReadyEmail(to: string, donorName: string, briefId: string) {
   await resend.emails.send({
-    from: 'Signal <signal@jacquelinetwillie.com>',
+    from: 'Signal <signal@bnedsignal.com>',
     to,
     subject: `Your Signal brief for ${donorName} is ready`,
     html: `
@@ -15,7 +15,7 @@ export async function sendBriefReadyEmail(to: string, donorName: string, briefId
            style="display: inline-block; background: #C8922A; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 16px 0;">
           View your brief →
         </a>
-        <p style="color: #6B7280; font-size: 14px;">Signal · signal.jacquelinetwillie.com</p>
+        <p style="color: #6B7280; font-size: 14px;">Signal · bnedsignal.com</p>
       </div>
     `,
   })
@@ -23,7 +23,7 @@ export async function sendBriefReadyEmail(to: string, donorName: string, briefId
 
 export async function sendFollowUpEmail(to: string) {
   await resend.emails.send({
-    from: 'Signal <signal@jacquelinetwillie.com>',
+    from: 'Signal <signal@bnedsignal.com>',
     to,
     subject: 'What did you think of your Signal brief?',
     html: `
@@ -35,7 +35,7 @@ export async function sendFollowUpEmail(to: string) {
            style="display: inline-block; background: #C8922A; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 16px 0;">
           See Founding Member pricing →
         </a>
-        <p style="color: #6B7280; font-size: 14px;">Signal · signal.jacquelinetwillie.com</p>
+        <p style="color: #6B7280; font-size: 14px;">Signal · bnedsignal.com</p>
       </div>
     `,
   })

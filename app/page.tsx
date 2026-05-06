@@ -159,7 +159,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-gray-100 py-8 px-6 text-center text-sm text-gray-500">
-        <p className="font-medium text-gray-700 mb-1">Signal · signal.jacquelinetwillie.com</p>
+        <p className="font-medium text-gray-700 mb-1">Signal · bnedsignal.com</p>
         <p>© 2026 Jacqueline V. Twillie</p>
         <div className="flex gap-4 justify-center mt-2">
           <Link href="/privacy" className="hover:text-gray-700">Privacy</Link>
