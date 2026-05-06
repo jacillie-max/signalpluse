@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { stripe, STRIPE_PRICE_IDS, TIER_LABELS } from '@/lib/stripe'
+import { getStripe, STRIPE_PRICE_IDS, TIER_LABELS } from '@/lib/stripe'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     mode: 'subscription',
     payment_method_types: ['card'],
     line_items: [{ price: STRIPE_PRICE_IDS[tier], quantity: 1 }],
