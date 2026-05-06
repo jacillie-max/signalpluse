@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generateBrief } from '@/lib/brief/generate'
-import { sendBriefReadyEmail } from '@/lib/resend'
+import { sendBriefReadyEmail } from '@/lib/email'
 import { TIER_LIMITS } from '@/types/brief'
 
 export async function POST(request: NextRequest) {
