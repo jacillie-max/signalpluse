@@ -1,7 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk'
 import type { BriefJson } from '@/types/brief'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
+function getAnthropic() {
+  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
+}
 
 const SYSTEM_PROMPT = `You are Signal's donor intelligence engine. You generate structured donor briefs for fundraising professionals.
 
@@ -77,7 +79,7 @@ Return a JSON object matching this exact schema:
   "limitations": string (always populated — what could not be verified; what to ask directly)
 }`
 
-  const response = await anthropic.messages.create({
+  const response = await getAnthropic().messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 4096,
     system: SYSTEM_PROMPT,

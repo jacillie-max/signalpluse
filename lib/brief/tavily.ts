@@ -1,11 +1,13 @@
 import { tavily } from '@tavily/core'
 
-const client = tavily({ apiKey: process.env.TAVILY_API_KEY! })
+function getClient() {
+  return tavily({ apiKey: process.env.TAVILY_API_KEY! })
+}
 
 export async function searchDonorNews(donorName: string, organization: string): Promise<string> {
   try {
     const query = `${donorName} ${organization} philanthropy giving foundation board`
-    const result = await client.search(query, {
+    const result = await getClient().search(query, {
       searchDepth: 'advanced',
       maxResults: 8,
       includeAnswer: true,
@@ -24,7 +26,7 @@ export async function searchDonorNews(donorName: string, organization: string): 
 
 export async function searchDonorSources(donorName: string, organization: string): Promise<{ url: string; title: string }[]> {
   try {
-    const result = await client.search(`${donorName} ${organization} philanthropist donor`, {
+    const result = await getClient().search(`${donorName} ${organization} philanthropist donor`, {
       searchDepth: 'advanced',
       maxResults: 10,
       days: 365,
