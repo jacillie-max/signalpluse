@@ -1,11 +1,8 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 import { BriefDetail } from '@/components/brief/BriefDetail'
-import { FOUNDING_DEADLINE } from '@/types/brief'
-import type { SignalBrief, SignalSubscription } from '@/types/brief'
+import type { SignalBrief } from '@/types/brief'
 
 export default async function BriefDetailPage({ params }: PageProps<'/brief/[id]'>) {
   const { id } = await params
@@ -14,17 +11,13 @@ export default async function BriefDetailPage({ params }: PageProps<'/brief/[id]
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [{ data: brief }, { data: sub }] = await Promise.all([
+  const [{ data: brief }] = await Promise.all([
     supabase.from('signal_briefs').select('*').eq('id', id).eq('user_id', user.id).single(),
-    supabase.from('signal_subscriptions').select('tier').eq('user_id', user.id).single(),
   ])
 
   if (!brief) notFound()
 
   const b = brief as SignalBrief
-  const tier = (sub as SignalSubscription | null)?.tier ?? 'free'
-  const isFreeTier = tier === 'free'
-  const isFoundingDeadlinePast = new Date() > new Date(FOUNDING_DEADLINE)
 
   // Brief not yet generated
   if (!b.brief_json) {
@@ -48,14 +41,6 @@ export default async function BriefDetailPage({ params }: PageProps<'/brief/[id]
         <Link href="/" className="text-xl font-bold text-[#1E3A5F]">Signal</Link>
         <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-900">← Dashboard</Link>
       </header>
-
-      {/* Upgrade banner for free tier */}
-      {isFreeTier && !isFoundingDeadlinePast && (
-        <div className="bg-[#1E3A5F] text-white px-6 py-3 flex items-center justify-between flex-wrap gap-3">
-          <p className="text-sm">Your free brief has been used. Founding Member access starts at $99/mo — lock in before May 27.</p>
-          <Link href="/pricing" className={cn(buttonVariants({ size: 'sm' }), 'bg-[#C8922A] hover:bg-[#b07f24] text-white shrink-0')}>Claim Founding Member access</Link>
-        </div>
-      )}
 
       {/* Low confidence banner */}
       {score < 0.50 && (

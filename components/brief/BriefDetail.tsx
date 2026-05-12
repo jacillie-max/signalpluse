@@ -50,7 +50,7 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
         <div className="flex items-start justify-between flex-wrap gap-3 mb-2">
           <div>
             <h1 className="text-3xl font-bold text-[#1E3A5F]">{json.donor_name}</h1>
-            <p className="text-gray-500 text-lg">{json.organization}</p>
+            {json.organization && <p className="text-gray-500 text-lg">{json.organization}</p>}
             <p className="text-xs text-gray-400 mt-1">
               Generated {new Date(json.generated_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </p>
@@ -59,14 +59,58 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
         </div>
       </div>
 
-      {/* Executive Summary */}
+      {/* 1. L.A.T.T.E. Recommendation — the whole point, show first */}
+      <div className="bg-[#1E3A5F] text-white rounded-xl p-6 mb-5">
+        <h2 className="font-semibold text-blue-300 text-sm uppercase tracking-wide mb-4">L.A.T.T.E. Cultivation Recommendation</h2>
+        <div className="mb-4">
+          <Badge className={`text-lg px-4 py-1 ${LATTE_COLORS[json.latte_recommendation.current_stage] ?? 'bg-gray-100 text-gray-800'}`}>
+            {json.latte_recommendation.current_stage}
+          </Badge>
+        </div>
+        <div className="bg-[#162d4a] rounded-lg p-4 mb-4">
+          <p className="text-xs text-blue-300 font-medium mb-1">Your next move</p>
+          <p className="text-white text-sm leading-relaxed">{json.latte_recommendation.next_move}</p>
+        </div>
+        <div className="bg-[#162d4a] rounded-lg p-4 mb-4">
+          <p className="text-xs text-blue-300 font-medium mb-1">Suggested conversation opener</p>
+          <blockquote className="text-blue-100 text-sm italic leading-relaxed border-l-2 border-[#C8922A] pl-3">
+            {json.latte_recommendation.suggested_first_conversation}
+          </blockquote>
+        </div>
+        <p className="text-blue-100 text-sm leading-relaxed border-t border-[#162d4a] pt-4">{json.latte_recommendation.rationale}</p>
+        <p className="text-xs text-blue-400 italic mt-3">L.A.T.T.E. framework from <em>Don&apos;t Leave Money on the Table</em> by Jacqueline V. Twillie</p>
+      </div>
+
+      {/* 2. Executive Summary */}
       <Section title="Executive Summary">
         <div className="border-l-4 border-[#C8922A] pl-4">
           <p className="text-gray-700 leading-relaxed">{json.executive_summary}</p>
         </div>
       </Section>
 
-      {/* Values Map */}
+      {/* 3. Language Intelligence — high-value, surfaces before research sections */}
+      <Section title="Language Intelligence">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <p className="text-xs font-semibold text-green-700 mb-2 uppercase tracking-wide">Language That Activates</p>
+            <div className="border-l-4 border-green-400 pl-4 space-y-2">
+              {json.language_that_activates.map((l, i) => (
+                <p key={i} className="text-sm text-gray-700">• {l}</p>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-red-700 mb-2 uppercase tracking-wide">Language to Avoid</p>
+            <div className="border-l-4 border-red-400 pl-4 space-y-2">
+              {json.language_to_avoid.map((l, i) => (
+                <p key={i} className="text-sm text-gray-700">• {l}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* 4. Values Map */}
       <Section title="Values Map">
         <div className="space-y-4">
           <div>
@@ -98,7 +142,7 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
         </div>
       </Section>
 
-      {/* Community Affiliations */}
+      {/* 5. Community Affiliations */}
       <Section title="Community Affiliations">
         {json.community_affiliations.length === 0 ? (
           <p className="text-sm text-gray-500 italic">No public board affiliations found.</p>
@@ -132,7 +176,7 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
         )}
       </Section>
 
-      {/* Institutional Financial Signals */}
+      {/* 6. Institutional Financial Signals — collapsed by default */}
       <div className="bg-white border border-gray-200 rounded-xl mb-5 overflow-hidden">
         <button
           onClick={() => setFinancialOpen(!financialOpen)}
@@ -214,7 +258,7 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
         )}
       </div>
 
-      {/* Giving History */}
+      {/* 7. Giving History */}
       <Section title="Giving History Signals">
         <div className="space-y-3">
           {json.giving_history_signals.known_recipients.length > 0 && (
@@ -240,51 +284,7 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
         </div>
       </Section>
 
-      {/* Language Intelligence */}
-      <Section title="Language Intelligence">
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <p className="text-xs font-semibold text-green-700 mb-2 uppercase tracking-wide">Language That Activates</p>
-            <div className="border-l-4 border-green-400 pl-4 space-y-2">
-              {json.language_that_activates.map((l, i) => (
-                <p key={i} className="text-sm text-gray-700">• {l}</p>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-red-700 mb-2 uppercase tracking-wide">Language to Avoid</p>
-            <div className="border-l-4 border-red-400 pl-4 space-y-2">
-              {json.language_to_avoid.map((l, i) => (
-                <p key={i} className="text-sm text-gray-700">• {l}</p>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* L.A.T.T.E. Recommendation */}
-      <div className="bg-[#1E3A5F] text-white rounded-xl p-6 mb-5">
-        <h2 className="font-semibold text-blue-300 text-sm uppercase tracking-wide mb-4">L.A.T.T.E. Cultivation Recommendation</h2>
-        <div className="mb-4">
-          <Badge className={`text-lg px-4 py-1 ${LATTE_COLORS[json.latte_recommendation.current_stage] ?? 'bg-gray-100 text-gray-800'}`}>
-            {json.latte_recommendation.current_stage}
-          </Badge>
-        </div>
-        <p className="text-blue-100 mb-4 leading-relaxed text-sm">{json.latte_recommendation.rationale}</p>
-        <div className="bg-[#162d4a] rounded-lg p-4 mb-4">
-          <p className="text-xs text-blue-300 font-medium mb-1">Your next move</p>
-          <p className="text-white text-sm leading-relaxed">{json.latte_recommendation.next_move}</p>
-        </div>
-        <div className="bg-[#162d4a] rounded-lg p-4 mb-4">
-          <p className="text-xs text-blue-300 font-medium mb-1">Suggested conversation opener</p>
-          <blockquote className="text-blue-100 text-sm italic leading-relaxed border-l-2 border-[#C8922A] pl-3">
-            {json.latte_recommendation.suggested_first_conversation}
-          </blockquote>
-        </div>
-        <p className="text-xs text-blue-400 italic">L.A.T.T.E. framework from <em>Don&apos;t Leave Money on the Table</em> by Jacqueline V. Twillie</p>
-      </div>
-
-      {/* Sources */}
+      {/* 8. Sources */}
       <Section title="Sources">
         {json.sources.length < 2 && (
           <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg px-4 py-3 text-sm mb-4">
@@ -304,7 +304,7 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
         </div>
       </Section>
 
-      {/* Limitations */}
+      {/* 9. Limitations */}
       <Section title="Limitations & What to Verify">
         <p className="text-sm text-gray-600 italic leading-relaxed">{json.limitations}</p>
       </Section>
