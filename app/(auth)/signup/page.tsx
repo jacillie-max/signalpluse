@@ -53,7 +53,7 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <Link href="/" className="text-2xl font-bold text-[#1E3A5F]">Signal</Link>
           <h1 className="text-xl font-semibold mt-4 text-gray-900">Create your account</h1>
-          <p className="text-sm text-gray-500 mt-1">No credit card required. Your first brief is free.</p>
+          <p className="text-sm text-gray-500 mt-1">No credit card required. Unlimited briefs during early access.</p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">

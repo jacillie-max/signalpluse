@@ -84,9 +84,9 @@ export interface SignalSubscription {
 }
 
 export const TIER_LIMITS: Record<string, number> = {
-  free: 1,
-  solo: 10,
-  consulting: 30,
+  free: Infinity,
+  solo: Infinity,
+  consulting: Infinity,
   org: Infinity,
 }
 

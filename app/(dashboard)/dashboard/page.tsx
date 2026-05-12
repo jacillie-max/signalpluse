@@ -54,63 +54,26 @@ export default async function DashboardPage({
           </div>
         )}
 
-        {/* Usage counter */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-          {tier === 'free' && isAtLimit ? (
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div>
-                <p className="font-semibold text-gray-900">Free brief used</p>
-                <p className="text-sm text-gray-500 mt-0.5">Upgrade to continue generating briefs.</p>
-              </div>
-              {!isFoundingDeadlinePast && (
-                <Link href="/pricing" className={cn(buttonVariants(), 'bg-[#C8922A] hover:bg-[#b07f24] text-white')}>View Founding Member pricing</Link>
-              )}
-            </div>
-          ) : tier === 'org' ? (
-            <p className="font-semibold text-gray-700">Unlimited briefs</p>
-          ) : (
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-semibold text-gray-900">Briefs this month</p>
-                <span className="text-sm text-gray-500">{used} / {limit === Infinity ? '∞' : limit}</span>
-              </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
-                <div
-                  className="bg-[#1E3A5F] h-2 rounded-full transition-all"
-                  style={{ width: `${Math.min((used / (limit as number)) * 100, 100)}%` }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Upgrade banner for free tier */}
-        {tier === 'free' && isAtLimit && !isFoundingDeadlinePast && (
-          <div className="bg-[#1E3A5F] text-white rounded-xl p-5 mb-6 flex items-center justify-between flex-wrap gap-4">
-            <p className="text-sm">Your free brief has been used. Founding Member access starts at $99/mo — lock in before May 27.</p>
-            <Link href="/pricing" className={cn(buttonVariants({ size: 'sm' }), 'bg-[#C8922A] hover:bg-[#b07f24] text-white shrink-0')}>See Founding Member pricing</Link>
+        {/* Early access notice */}
+        <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-6 flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <p className="font-semibold text-[#1E3A5F] text-sm">Early access — unlimited briefs</p>
+            <p className="text-xs text-gray-500 mt-0.5">Signal is free while we're in early access. Generate as many briefs as you need.</p>
           </div>
-        )}
+          <Badge className="bg-[#1E3A5F] text-white text-xs">Free</Badge>
+        </div>
 
         {/* Briefs list */}
         <div className="bg-white border border-gray-200 rounded-xl">
           <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
             <h2 className="font-semibold text-gray-900">Your briefs</h2>
-            {isAtLimit ? (
-              <Button disabled className="opacity-50 cursor-not-allowed" title="Upgrade to generate more briefs">
-                Generate new brief
-              </Button>
-            ) : (
-              <Link href="/brief/new" className={cn(buttonVariants(), 'bg-[#1E3A5F] hover:bg-[#162d4a] text-white')}>Generate new brief</Link>
-            )}
+            <Link href="/brief/new" className={cn(buttonVariants(), 'bg-[#1E3A5F] hover:bg-[#162d4a] text-white')}>Generate new brief</Link>
           </div>
 
           {!briefs || briefs.length === 0 ? (
             <div className="px-6 py-16 text-center">
               <p className="text-gray-500 mb-4">No briefs yet. Generate your first brief to get started.</p>
-              {!isAtLimit && (
-                <Link href="/brief/new" className={cn(buttonVariants(), 'bg-[#C8922A] hover:bg-[#b07f24] text-white')}>Generate your first brief</Link>
-              )}
+              <Link href="/brief/new" className={cn(buttonVariants(), 'bg-[#C8922A] hover:bg-[#b07f24] text-white')}>Generate your first brief</Link>
             </div>
           ) : (
             <div className="divide-y divide-gray-100">

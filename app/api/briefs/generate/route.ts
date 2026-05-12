@@ -19,17 +19,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'donor_name and organization are required' }, { status: 400 })
     }
 
-    // Check brief limit server-side
-    const { data: sub } = await supabase
+    // Ensure subscription exists — auto-create free if missing (e.g. email-confirmed users)
+    let { data: sub } = await supabase
       .from('signal_subscriptions')
       .select('*')
       .eq('user_id', user.id)
       .single()
 
     if (!sub) {
-      return NextResponse.json({ error: 'Subscription not found' }, { status: 403 })
+      const { data: newSub } = await supabase
+        .from('signal_subscriptions')
+        .upsert({ user_id: user.id, tier: 'free', briefs_used_this_period: 0 })
+        .select()
+        .single()
+      sub = newSub
     }
 
+    if (!sub) {
+      return NextResponse.json({ error: 'Could not initialize subscription' }, { status: 500 })
+    }
+
+    // Check brief limit (currently Infinity for all tiers — product is free)
     const limit = TIER_LIMITS[sub.tier]
     if (sub.briefs_used_this_period >= limit) {
       return NextResponse.json({ error: 'Brief limit reached', tier: sub.tier }, { status: 403 })

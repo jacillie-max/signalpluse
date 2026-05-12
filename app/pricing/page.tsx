@@ -14,13 +14,14 @@ const isFoundingDeadlinePast = new Date() > new Date(FOUNDING_DEADLINE)
 const TIERS = [
   {
     key: 'free',
-    name: 'Free',
+    name: 'Free — Early Access',
     price: '$0',
-    briefs: '1 brief, one time',
+    briefs: 'Unlimited briefs during early access',
     cardRequired: false,
-    cta: 'Start free — no card',
+    cta: 'Get started — no card',
     href: '/signup',
     founding: false,
+    highlight: true,
   },
   {
     key: 'solo',
@@ -29,8 +30,9 @@ const TIERS = [
     standardPrice: '$199/mo',
     briefs: '10 briefs/month',
     cardRequired: true,
-    cta: 'Claim Founding Member',
+    cta: 'Coming soon',
     founding: true,
+    comingSoon: true,
   },
   {
     key: 'consulting',
@@ -39,9 +41,10 @@ const TIERS = [
     standardPrice: '$499/mo',
     briefs: '30 briefs/month',
     cardRequired: true,
-    cta: 'Claim Founding Member',
+    cta: 'Coming soon',
     founding: true,
     popular: true,
+    comingSoon: true,
   },
   {
     key: 'org',
@@ -50,8 +53,9 @@ const TIERS = [
     standardPrice: '$1,500/mo',
     briefs: 'Unlimited',
     cardRequired: true,
-    cta: 'Claim Founding Member',
+    cta: 'Coming soon',
     founding: true,
+    comingSoon: true,
   },
 ]
 
@@ -108,17 +112,15 @@ export default function PricingPage() {
         <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900">Log in</Link>
       </header>
 
-      {/* Founding Member banner */}
-      {!isFoundingDeadlinePast && (
-        <div className="bg-[#1E3A5F] text-white py-3 px-6 text-center text-sm">
-          Founding Member pricing ends May 27, 2026 — or when 25 members claim it. After that, prices go to standard.
-        </div>
-      )}
+      {/* Early access banner */}
+      <div className="bg-[#1E3A5F] text-white py-3 px-6 text-center text-sm">
+        Signal is free during early access — unlimited briefs, no card required.
+      </div>
 
       <main className="max-w-5xl mx-auto px-6 py-16">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#1E3A5F] mb-3">Signal Pricing</h1>
-          <p className="text-xl text-gray-500">Start free. Upgrade when Signal earns it.</p>
+          <p className="text-xl text-gray-500">Free during early access. Paid plans coming soon.</p>
         </div>
 
         {/* Tier cards */}
@@ -127,7 +129,9 @@ export default function PricingPage() {
             <div
               key={tier.key}
               className={`border rounded-xl p-6 flex flex-col relative ${
-                'popular' in tier && tier.popular ? 'border-[#C8922A] shadow-lg' : 'border-gray-200'
+                'highlight' in tier && tier.highlight
+                  ? 'border-[#1E3A5F] shadow-lg'
+                  : 'border-gray-200 opacity-60'
               }`}
             >
               {'popular' in tier && tier.popular && (
@@ -135,40 +139,30 @@ export default function PricingPage() {
                   Most popular
                 </Badge>
               )}
-              {tier.founding && !isFoundingDeadlinePast && (
-                <Badge className="bg-amber-100 text-amber-800 text-xs self-start mb-3">Founding Member Rate</Badge>
+              {'highlight' in tier && tier.highlight && (
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1E3A5F] text-white text-xs px-3">
+                  Available now
+                </Badge>
               )}
               <h2 className="font-bold text-lg text-[#1E3A5F] mb-2">{tier.name}</h2>
               <div className="mb-1">
                 {'foundingPrice' in tier ? (
-                  <>
-                    <span className="text-2xl font-bold">{tier.foundingPrice}</span>
-                    {!isFoundingDeadlinePast && (
-                      <span className="text-sm text-gray-400 line-through ml-2">{tier.standardPrice}</span>
-                    )}
-                  </>
+                  <span className="text-2xl font-bold text-gray-400">{tier.foundingPrice}</span>
                 ) : (
                   <span className="text-2xl font-bold">{tier.price}</span>
                 )}
               </div>
               <p className="text-sm text-gray-500 mb-6 flex-1">{tier.briefs}</p>
               {tier.key === 'free' ? (
-                <Link href={tier.href!} className={buttonVariants({ variant: 'outline', size: 'sm' })}>{tier.cta}</Link>
+                <Link href={tier.href!} className={buttonVariants({ variant: 'default', size: 'sm', className: 'bg-[#1E3A5F] hover:bg-[#162d4a] text-white' })}>{tier.cta}</Link>
               ) : (
                 <Button
                   size="sm"
-                  onClick={() => handleCheckout(tier.key)}
-                  disabled={loading === tier.key}
-                  className={'popular' in tier && tier.popular
-                    ? 'bg-[#C8922A] hover:bg-[#b07f24] text-white'
-                    : 'bg-[#1E3A5F] hover:bg-[#162d4a] text-white'
-                  }
+                  disabled
+                  className="bg-gray-100 text-gray-400 cursor-not-allowed"
                 >
-                  {loading === tier.key ? 'Redirecting…' : tier.cta}
+                  {tier.cta}
                 </Button>
-              )}
-              {tier.key !== 'free' && !isFoundingDeadlinePast && (
-                <p className="text-xs text-gray-400 mt-3 text-center">Locks in for 12 months. Cap: 25 members or May 27.</p>
               )}
             </div>
           ))}
