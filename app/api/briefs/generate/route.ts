@@ -77,8 +77,10 @@ export async function POST(request: NextRequest) {
       .update({ briefs_used_this_period: sub.briefs_used_this_period + 1 })
       .eq('user_id', user.id)
 
-    // Send email notification
-    await sendBriefReadyEmail(user.email!, donor_name, brief_id)
+    // Send email notification — include L.A.T.T.E. stage + next move as teaser
+    const latteStage = briefJson.latte_recommendation?.current_stage ?? null
+    const nextMove = briefJson.latte_recommendation?.next_move ?? null
+    await sendBriefReadyEmail(user.email!, donor_name, brief_id, latteStage, nextMove)
 
     return NextResponse.json({ brief_id, success: true })
   } catch (err) {
