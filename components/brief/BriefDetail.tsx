@@ -281,7 +281,7 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
             {json.latte_recommendation.suggested_first_conversation}
           </blockquote>
         </div>
-        <p className="text-xs text-blue-400 italic">L.A.T.T.E. framework from <em>Don't Leave Money on the Table</em> by Jacqueline V. Twillie</p>
+        <p className="text-xs text-blue-400 italic">L.A.T.T.E. framework from <em>Don&apos;t Leave Money on the Table</em> by Jacqueline V. Twillie</p>
       </div>
 
       {/* Sources */}
