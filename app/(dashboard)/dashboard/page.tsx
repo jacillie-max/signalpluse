@@ -22,7 +22,7 @@ export default async function DashboardPage({
       .single(),
     supabase
       .from('signal_briefs')
-      .select('id, donor_name, organization, created_at, confidence_score, brief_json')
+      .select('id, donor_name, organization, created_at, confidence_score, status, brief_json')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
   ])

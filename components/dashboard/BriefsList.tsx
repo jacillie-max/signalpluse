@@ -6,7 +6,24 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { LATTE_COLORS, LATTE_PRIORITY } from '@/lib/latte'
 import { NextMovesPanel } from '@/components/dashboard/NextMovesPanel'
-import type { SignalBrief, LatteStage } from '@/types/brief'
+import type { SignalBrief, LatteStage, BriefStatus } from '@/types/brief'
+
+const STATUS_BADGE: Record<BriefStatus, { label: string; className: string }> = {
+  contacted: { label: 'Contacted',  className: 'bg-blue-50 text-blue-700 border border-blue-200' },
+  met:        { label: 'Met',        className: 'bg-purple-50 text-purple-700 border border-purple-200' },
+  committed:  { label: 'Committed', className: 'bg-green-50 text-green-700 border border-green-200' },
+  passed:     { label: 'Passed',    className: 'bg-gray-100 text-gray-500 border border-gray-200' },
+}
+
+function StatusBadge({ status }: { status: BriefStatus | null }) {
+  if (!status) return null
+  const cfg = STATUS_BADGE[status]
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium shrink-0 ${cfg.className}`}>
+      {cfg.label}
+    </span>
+  )
+}
 
 const LATTE_STAGES: LatteStage[] = ['Look', 'Anticipate', 'Think', 'Talk', 'Evaluate']
 
@@ -245,6 +262,7 @@ export function BriefsList({ briefs, generateHref }: { briefs: SignalBrief[]; ge
 
                     {/* Right: badges */}
                     <div className="flex items-center gap-2 shrink-0">
+                      <StatusBadge status={brief.status} />
                       <ConfidenceBadge score={brief.confidence_score} />
                       {brief.latte_stage && <LatteChip stage={brief.latte_stage as LatteStage} />}
                       <span className="text-gray-300 text-sm ml-1">→</span>

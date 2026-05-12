@@ -5,7 +5,14 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import type { SignalBrief, BriefJson } from '@/types/brief'
+import type { SignalBrief, BriefJson, BriefStatus } from '@/types/brief'
+
+const STATUS_CONFIG: Record<BriefStatus, { label: string; emoji: string; active: string; ring: string }> = {
+  contacted: { label: 'Contacted',  emoji: '📨', active: 'bg-blue-100 text-blue-800 border-blue-300',   ring: 'ring-blue-300' },
+  met:        { label: 'Met',        emoji: '🤝', active: 'bg-purple-100 text-purple-800 border-purple-300', ring: 'ring-purple-300' },
+  committed:  { label: 'Committed', emoji: '🎯', active: 'bg-green-100 text-green-800 border-green-300',  ring: 'ring-green-300' },
+  passed:     { label: 'Passed',    emoji: '↩️', active: 'bg-gray-100 text-gray-600 border-gray-300',    ring: 'ring-gray-300' },
+}
 
 const LATTE_COLORS: Record<string, string> = {
   Look: 'bg-gray-100 text-gray-800',
@@ -32,6 +39,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function BriefDetail({ brief }: { brief: SignalBrief }) {
   const [thumbs, setThumbs] = useState<'up' | 'down' | null>(brief.thumbs)
+  const [status, setStatus] = useState<BriefStatus | null>(brief.status)
   const [financialOpen, setFinancialOpen] = useState(false)
   const supabase = createClient()
   const json = brief.brief_json as BriefJson
@@ -41,6 +49,13 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
     setThumbs(newVal)
     await supabase.from('signal_briefs').update({ thumbs: newVal }).eq('id', brief.id)
     toast.success(newVal ? (newVal === 'up' ? 'Thanks for the feedback!' : "Noted — we'll keep improving.") : 'Feedback cleared.')
+  }
+
+  async function handleStatus(val: BriefStatus) {
+    const newVal = status === val ? null : val
+    setStatus(newVal)
+    await supabase.from('signal_briefs').update({ status: newVal }).eq('id', brief.id)
+    toast.success(newVal ? `Marked as ${STATUS_CONFIG[newVal].label.toLowerCase()}.` : 'Status cleared.')
   }
 
   return (
@@ -79,6 +94,39 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
         </div>
         <p className="text-blue-100 text-sm leading-relaxed border-t border-[#162d4a] pt-4">{json.latte_recommendation.rationale}</p>
         <p className="text-xs text-blue-400 italic mt-3">L.A.T.T.E. framework from <em>Don&apos;t Leave Money on the Table</em> by Jacqueline V. Twillie</p>
+      </div>
+
+      {/* Status tracker — loop closure */}
+      <div className="bg-white border border-gray-200 rounded-xl px-6 py-4 mb-5">
+        <p className="text-xs font-medium text-gray-500 mb-3 uppercase tracking-wide">Track your progress</p>
+        <div className="flex flex-wrap gap-2">
+          {(Object.entries(STATUS_CONFIG) as [BriefStatus, typeof STATUS_CONFIG[BriefStatus]][]).map(([key, cfg]) => {
+            const isActive = status === key
+            return (
+              <button
+                key={key}
+                onClick={() => handleStatus(key)}
+                className={[
+                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all',
+                  isActive
+                    ? `${cfg.active} ring-2 ${cfg.ring} ring-offset-1`
+                    : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:text-gray-700',
+                ].join(' ')}
+              >
+                <span>{cfg.emoji}</span>
+                {cfg.label}
+                {isActive && (
+                  <span className="ml-0.5 text-xs opacity-60">✓</span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+        {status && (
+          <p className="text-xs text-gray-400 mt-2">
+            Click again to clear.
+          </p>
+        )}
       </div>
 
       {/* 2. Executive Summary */}

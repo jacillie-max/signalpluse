@@ -61,6 +61,8 @@ export interface BriefJson {
 
 export type LatteStage = 'Look' | 'Anticipate' | 'Think' | 'Talk' | 'Evaluate'
 
+export type BriefStatus = 'contacted' | 'met' | 'committed' | 'passed'
+
 export interface SignalBrief {
   id: string
   user_id: string
@@ -71,6 +73,7 @@ export interface SignalBrief {
   confidence_score: number | null
   pdf_url: string | null
   thumbs: 'up' | 'down' | null
+  status: BriefStatus | null
   created_at: string
   // Extracted from brief_json in dashboard query
   latte_stage?: LatteStage | null
