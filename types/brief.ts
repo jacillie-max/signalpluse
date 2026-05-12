@@ -59,6 +59,8 @@ export interface BriefJson {
   limitations: string
 }
 
+export type LatteStage = 'Look' | 'Anticipate' | 'Think' | 'Talk' | 'Evaluate'
+
 export interface SignalBrief {
   id: string
   user_id: string
@@ -70,6 +72,9 @@ export interface SignalBrief {
   pdf_url: string | null
   thumbs: 'up' | 'down' | null
   created_at: string
+  // Extracted from brief_json in dashboard query
+  latte_stage?: LatteStage | null
+  next_move?: string | null
 }
 
 export interface SignalSubscription {
