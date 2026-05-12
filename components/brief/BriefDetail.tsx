@@ -66,6 +66,20 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
 
   return (
     <div>
+      {/* Print-only header — hidden on screen, visible when printing */}
+      <div className="print-only hidden mb-6 pb-4 border-b-2 border-[#1E3A5F]">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-xl font-bold text-[#1E3A5F]">Signal</p>
+            <p className="text-xs text-gray-500 uppercase tracking-wide">Donor Intelligence Brief</p>
+          </div>
+          <p className="text-xs text-gray-400 text-right">
+            Confidential — for internal use only<br />
+            Generated {new Date(json.generated_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          </p>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-start justify-between flex-wrap gap-3 mb-2">
@@ -81,18 +95,18 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
       </div>
 
       {/* 1. L.A.T.T.E. Recommendation — the whole point, show first */}
-      <div className="bg-[#1E3A5F] text-white rounded-xl p-6 mb-5">
+      <div className="latte-print-card print-avoid-break bg-[#1E3A5F] text-white rounded-xl p-6 mb-5">
         <h2 className="font-semibold text-blue-300 text-sm uppercase tracking-wide mb-4">L.A.T.T.E. Cultivation Recommendation</h2>
         <div className="mb-4">
           <Badge className={`text-lg px-4 py-1 ${LATTE_COLORS[json.latte_recommendation.current_stage] ?? 'bg-gray-100 text-gray-800'}`}>
             {json.latte_recommendation.current_stage}
           </Badge>
         </div>
-        <div className="bg-[#162d4a] rounded-lg p-4 mb-4">
+        <div className="latte-inner-box bg-[#162d4a] rounded-lg p-4 mb-4">
           <p className="text-xs text-blue-300 font-medium mb-1">Your next move</p>
           <p className="text-white text-sm leading-relaxed">{json.latte_recommendation.next_move}</p>
         </div>
-        <div className="bg-[#162d4a] rounded-lg p-4 mb-4">
+        <div className="latte-inner-box bg-[#162d4a] rounded-lg p-4 mb-4">
           <p className="text-xs text-blue-300 font-medium mb-1">Suggested conversation opener</p>
           <blockquote className="text-blue-100 text-sm italic leading-relaxed border-l-2 border-[#C8922A] pl-3">
             {json.latte_recommendation.suggested_first_conversation}
@@ -132,7 +146,7 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
             </div>
             <Link
               href={`/brief/new?from=${brief.id}`}
-              className={`inline-flex items-center gap-1.5 text-sm font-medium border rounded-lg px-3 py-1.5 transition-colors shrink-0 ${s.btn}`}
+              className={`no-print inline-flex items-center gap-1.5 text-sm font-medium border rounded-lg px-3 py-1.5 transition-colors shrink-0 ${s.btn}`}
             >
               ↻ Refresh this brief
             </Link>
@@ -141,7 +155,7 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
       })()}
 
       {/* Status tracker — loop closure */}
-      <div className="bg-white border border-gray-200 rounded-xl px-6 py-4 mb-5">
+      <div className="no-print bg-white border border-gray-200 rounded-xl px-6 py-4 mb-5">
         <p className="text-xs font-medium text-gray-500 mb-3 uppercase tracking-wide">Track your progress</p>
         <div className="flex flex-wrap gap-2">
           {(Object.entries(STATUS_CONFIG) as [BriefStatus, typeof STATUS_CONFIG[BriefStatus]][]).map(([key, cfg]) => {
@@ -402,7 +416,7 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
       </Section>
 
       {/* Footer actions */}
-      <div className="flex items-center justify-between flex-wrap gap-4 pt-2 pb-10">
+      <div className="no-print flex items-center justify-between flex-wrap gap-4 pt-2 pb-10">
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-500">Was this brief useful?</span>
           <button
@@ -416,7 +430,18 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
             title="Thumbs down"
           >👎</button>
         </div>
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-900">← Back to Dashboard</Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-400 rounded-lg px-3 py-1.5 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Download PDF
+          </button>
+          <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-900">← Dashboard</Link>
+        </div>
       </div>
     </div>
   )

@@ -128,3 +128,43 @@
     @apply font-sans;
   }
 }
+
+@media print {
+  /* Hide all navigation and interactive UI */
+  .no-print { display: none !important; }
+
+  /* Clean white canvas */
+  body, html { background: white !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Remove shadows for print */
+  * { box-shadow: none !important; }
+
+  /* Full width — no sidebar padding */
+  main { max-width: 100% !important; padding: 0 !important; }
+
+  /* Keep cards readable but strip heavy shadows */
+  .bg-white { border: 1px solid #e5e7eb !important; }
+
+  /* L.A.T.T.E. card: swap dark bg to light for print legibility */
+  .latte-print-card {
+    background: #f0f4f8 !important;
+    color: #1E3A5F !important;
+    border: 2px solid #1E3A5F !important;
+  }
+  .latte-print-card * { color: #1E3A5F !important; }
+  .latte-print-card .latte-inner-box {
+    background: #e2e8f0 !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  .latte-print-card blockquote { border-left-color: #C8922A !important; }
+
+  /* Avoid breaking sections across pages */
+  .print-avoid-break { page-break-inside: avoid; break-inside: avoid; }
+
+  /* Page break before sources */
+  .print-break-before { page-break-before: always; break-before: always; }
+
+  /* Show print-only header */
+  .print-only { display: block !important; }
+}
