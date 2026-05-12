@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { LATTE_COLORS, LATTE_PRIORITY } from '@/lib/latte'
 import { NextMovesPanel } from '@/components/dashboard/NextMovesPanel'
+import { briefAgeDays, getFreshnessLevel } from '@/lib/brief-freshness'
 import type { SignalBrief, LatteStage, BriefStatus } from '@/types/brief'
 
 const STATUS_BADGE: Record<BriefStatus, { label: string; className: string }> = {
@@ -251,13 +252,21 @@ export function BriefsList({ briefs, generateHref }: { briefs: SignalBrief[]; ge
                       {brief.organization && (
                         <p className="text-sm text-gray-500 truncate">{brief.organization}</p>
                       )}
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {new Date(brief.created_at).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </p>
+                      {(() => {
+                        const days = briefAgeDays(brief.created_at)
+                        const level = getFreshnessLevel(days, brief.latte_stage ?? null)
+                        const dateStr = new Date(brief.created_at).toLocaleDateString('en-US', {
+                          month: 'short', day: 'numeric', year: 'numeric',
+                        })
+                        return (
+                          <p className="text-xs mt-0.5 flex items-center gap-1.5">
+                            <span className="text-gray-400">{dateStr}</span>
+                            {(level === 'stale' || level === 'outdated') && (
+                              <span className="text-amber-500 font-medium">· ↻ refresh suggested</span>
+                            )}
+                          </p>
+                        )
+                      })()}
                     </div>
 
                     {/* Right: badges */}

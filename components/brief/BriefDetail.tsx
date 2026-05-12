@@ -5,7 +5,13 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import type { SignalBrief, BriefJson, BriefStatus } from '@/types/brief'
+import {
+  briefAgeDays,
+  briefAgeLabel,
+  getFreshnessLevel,
+  getFreshnessReason,
+} from '@/lib/brief-freshness'
+import type { SignalBrief, BriefJson, BriefStatus, LatteStage } from '@/types/brief'
 
 const STATUS_CONFIG: Record<BriefStatus, { label: string; emoji: string; active: string; ring: string }> = {
   contacted: { label: 'Contacted',  emoji: '📨', active: 'bg-blue-100 text-blue-800 border-blue-300',   ring: 'ring-blue-300' },
@@ -95,6 +101,44 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
         <p className="text-blue-100 text-sm leading-relaxed border-t border-[#162d4a] pt-4">{json.latte_recommendation.rationale}</p>
         <p className="text-xs text-blue-400 italic mt-3">L.A.T.T.E. framework from <em>Don&apos;t Leave Money on the Table</em> by Jacqueline V. Twillie</p>
       </div>
+
+      {/* Freshness banner — only for aging/stale/outdated */}
+      {(() => {
+        const days = briefAgeDays(brief.created_at)
+        const stage = json.latte_recommendation.current_stage as LatteStage
+        const level = getFreshnessLevel(days, stage)
+        if (level === 'fresh') return null
+
+        const ageLabel = briefAgeLabel(days)
+        const reason = getFreshnessReason(days, stage)
+
+        const styles = {
+          aging:    { banner: 'bg-gray-50 border-gray-200',             icon: '🕐', text: 'text-gray-600',  label: 'text-gray-700',  btn: 'text-gray-600 hover:text-gray-900 border-gray-300 hover:border-gray-500' },
+          stale:    { banner: 'bg-amber-50 border-amber-200',           icon: '⚠️', text: 'text-amber-700', label: 'text-amber-800', btn: 'text-amber-700 hover:text-amber-900 border-amber-300 hover:border-amber-500' },
+          outdated: { banner: 'bg-orange-50 border-orange-200',         icon: '⚠️', text: 'text-orange-700',label: 'text-orange-800',btn: 'text-orange-700 hover:text-orange-900 border-orange-300 hover:border-orange-500' },
+        }
+        const s = styles[level]
+
+        return (
+          <div className={`border rounded-xl px-5 py-4 mb-5 flex items-start justify-between gap-4 flex-wrap ${s.banner}`}>
+            <div className="flex items-start gap-3 min-w-0">
+              <span className="text-base mt-0.5 shrink-0">{s.icon}</span>
+              <div>
+                <p className={`text-sm font-medium ${s.label}`}>
+                  This brief is {ageLabel}
+                </p>
+                <p className={`text-sm mt-0.5 ${s.text}`}>{reason}</p>
+              </div>
+            </div>
+            <Link
+              href={`/brief/new?from=${brief.id}`}
+              className={`inline-flex items-center gap-1.5 text-sm font-medium border rounded-lg px-3 py-1.5 transition-colors shrink-0 ${s.btn}`}
+            >
+              ↻ Refresh this brief
+            </Link>
+          </div>
+        )
+      })()}
 
       {/* Status tracker — loop closure */}
       <div className="bg-white border border-gray-200 rounded-xl px-6 py-4 mb-5">
