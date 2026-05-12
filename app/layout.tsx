@@ -1,9 +1,22 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const beVietnamPro = localFont({
+  src: [
+    {
+      path: '../public/fonts/BeVietnamPro-Variable.woff2',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/BeVietnamPro-VariableItalic.woff2',
+      style: 'italic',
+    },
+  ],
+  variable: '--font-be-vietnam-pro',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Signal — Donor Values Intelligence',
@@ -13,7 +26,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen bg-background antialiased`}>
+      <body className={`${beVietnamPro.className} min-h-screen bg-background antialiased`}>
         {children}
         <Toaster richColors position="top-right" />
       </body>
