@@ -1,28 +1,10 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
-import { LATTE_COLORS } from '@/lib/latte'
-import { NextMovesPanel } from '@/components/dashboard/NextMovesPanel'
+import { BriefsList } from '@/components/dashboard/BriefsList'
 import type { SignalBrief, SignalSubscription, LatteStage } from '@/types/brief'
-
-function ConfidenceBadge({ score }: { score: number | null }) {
-  if (!score) return null
-  if (score >= 0.70) return <Badge className="bg-green-100 text-green-800 text-xs shrink-0">High</Badge>
-  if (score >= 0.50) return <Badge className="bg-yellow-100 text-yellow-800 text-xs shrink-0">Medium</Badge>
-  return <Badge className="bg-red-100 text-red-800 text-xs shrink-0">Low</Badge>
-}
-
-function LatteChip({ stage }: { stage: LatteStage }) {
-  const c = LATTE_COLORS[stage]
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium shrink-0 ${c.bg} ${c.text}`}>
-      {stage}
-    </span>
-  )
-}
 
 export default async function DashboardPage({
   searchParams,
@@ -81,74 +63,7 @@ export default async function DashboardPage({
           </div>
         )}
 
-        {/* Next moves panel — only renders when there are actionable briefs */}
-        <NextMovesPanel briefs={briefs} />
-
-        {/* Briefs list */}
-        <div className="bg-white border border-gray-200 rounded-xl">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-            <div>
-              <h2 className="font-semibold text-gray-900">Your briefs</h2>
-              {briefs.length > 0 && (
-                <p className="text-xs text-gray-400 mt-0.5">{briefs.length} brief{briefs.length !== 1 ? 's' : ''}</p>
-              )}
-            </div>
-            <Link
-              href="/brief/new"
-              className={cn(buttonVariants({ size: 'sm' }), 'bg-[#1E3A5F] hover:bg-[#162d4a] text-white')}
-            >
-              Generate new brief
-            </Link>
-          </div>
-
-          {briefs.length === 0 ? (
-            <div className="px-6 py-20 text-center">
-              <p className="text-2xl mb-2">🔍</p>
-              <p className="font-medium text-gray-900 mb-1">No briefs yet</p>
-              <p className="text-sm text-gray-500 mb-6">Run a brief on any donor prospect to see their values, affiliations, and your best next move.</p>
-              <Link
-                href="/brief/new"
-                className={cn(buttonVariants(), 'bg-[#C8922A] hover:bg-[#b07f24] text-white')}
-              >
-                Generate your first brief
-              </Link>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-100">
-              {briefs.map(brief => (
-                <Link
-                  key={brief.id}
-                  href={`/brief/${brief.id}`}
-                  className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 transition-colors group"
-                >
-                  {/* Left: name + org + date */}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 group-hover:text-[#1E3A5F] truncate">
-                      {brief.donor_name}
-                    </p>
-                    {brief.organization && (
-                      <p className="text-sm text-gray-500 truncate">{brief.organization}</p>
-                    )}
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(brief.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </p>
-                  </div>
-
-                  {/* Right: badges */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    <ConfidenceBadge score={brief.confidence_score} />
-                    {brief.latte_stage && <LatteChip stage={brief.latte_stage as LatteStage} />}
-                    <span className="text-gray-300 text-sm ml-1">→</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+        <BriefsList briefs={briefs} generateHref="/brief/new" />
       </main>
     </div>
   )
