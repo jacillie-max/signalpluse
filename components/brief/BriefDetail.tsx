@@ -415,6 +415,12 @@ export function BriefDetail({ brief }: { brief: SignalBrief }) {
         <p className="text-sm text-gray-600 italic leading-relaxed">{json.limitations}</p>
       </Section>
 
+      {/* Print-only footer */}
+      <div className="print-only hidden mt-8 pt-4 border-t border-gray-300 flex items-center justify-between">
+        <p className="text-xs text-gray-500">Signal · Donor intelligence for nonprofit leaders</p>
+        <p className="text-xs text-gray-500">bnedsignal.com</p>
+      </div>
+
       {/* Footer actions */}
       <div className="no-print flex items-center justify-between flex-wrap gap-4 pt-2 pb-10">
         <div className="flex items-center gap-3">
