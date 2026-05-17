@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { LockedDashboard } from '@/components/LockedDashboard'
 import { BriefsList } from '@/components/dashboard/BriefsList'
 import type { SignalBrief, SignalSubscription, LatteStage } from '@/types/brief'
 
@@ -65,8 +64,8 @@ export default async function DashboardPage({
         )}
 
         <BriefsList briefs={briefs} generateHref="/brief/new" />
-        <LockedDashboard />
-        <LockedDashboard />
+        
+        
       </main>
     </div>
   )
