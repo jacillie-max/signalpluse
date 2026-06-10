@@ -1,6 +1,12 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy init: instantiating at module level crashes the build and all
+// importing routes when RESEND_API_KEY is absent from the environment
+let _resend: Resend | null = null
+function resendClient(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY)
+  return _resend
+}
 const FROM = 'Signal <noreply@bnedsignal.com>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://bnedsignal.com'
 
@@ -25,7 +31,7 @@ export async function sendBriefReadyEmail(
       </table>`
     : ''
 
-  await resend.emails.send({
+  await resendClient().emails.send({
     from: FROM,
     to: [to],
     subject: `Your Signal brief on ${donorName} is ready`,
