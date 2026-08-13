@@ -65,32 +65,36 @@ export function NewBriefForm({
       setProgressIndex(i => (i + 1) % PROGRESS_MESSAGES.length)
     }, 8000)
 
-    const res = await fetch('/api/briefs/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        donor_name: donorName,
-        organization,
-        context_notes: contextNotes || null,
-        brief_id: briefRow.id,
-      }),
-    })
+    try {
+      const res = await fetch('/api/briefs/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          donor_name: donorName,
+          organization,
+          context_notes: contextNotes || null,
+          brief_id: briefRow.id,
+        }),
+      })
 
-    clearInterval(interval)
-
-    if (!res.ok) {
-      const err = await res.json()
-      if (err.error === 'Brief limit reached') {
-        toast.error("You've reached your brief limit. Upgrade to generate more.")
-        router.push('/pricing')
-      } else {
-        toast.error(err.error ?? 'Brief generation failed. Please try again.')
+      if (!res.ok) {
+        const err: { error?: string } = await res.json().catch(() => ({}))
+        if (err.error === 'Brief limit reached') {
+          toast.error("You've reached your brief limit during the beta.")
+        } else {
+          toast.error(err.error ?? 'Brief generation failed. Please try again.')
+        }
+        setLoading(false)
+        return
       }
-      setLoading(false)
-      return
-    }
 
-    router.push(`/brief/${briefRow.id}`)
+      router.push(`/brief/${briefRow.id}`)
+    } catch {
+      toast.error('We couldn\'t reach Signal. Check your connection and try again.')
+      setLoading(false)
+    } finally {
+      clearInterval(interval)
+    }
   }
 
   if (loading) {
