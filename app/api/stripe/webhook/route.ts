@@ -29,7 +29,26 @@ export async function POST(request: NextRequest) {
     const tier = session.metadata?.tier
 
     if (!userId || !tier) {
-      return NextResponse.json({ error: 'Missing metadata' }, { status: 400 })
+      // Not a session this app created — acknowledge so Stripe doesn't retry it forever
+      console.error('checkout.session.completed missing user_id/tier metadata:', session.id)
+      return NextResponse.json({ received: true })
+    }
+
+    // Idempotency: if this subscription is already applied, a replayed event
+    // must not re-zero usage or shift the billing period
+    const { data: existing, error: readError } = await supabaseAdmin
+      .from('signal_subscriptions')
+      .select('stripe_subscription_id')
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (readError) {
+      console.error('Supabase read error:', readError)
+      return NextResponse.json({ error: 'Database read failed' }, { status: 500 })
+    }
+
+    if (existing && existing.stripe_subscription_id === (session.subscription as string)) {
+      return NextResponse.json({ received: true })
     }
 
     // Check founding member eligibility
@@ -44,24 +63,42 @@ export async function POST(request: NextRequest) {
     const periodResetDate = new Date()
     periodResetDate.setMonth(periodResetDate.getMonth() + 1)
 
-    await supabaseAdmin
-      .from('signal_subscriptions')
-      .update({
-        tier,
-        stripe_subscription_id: session.subscription as string,
-        is_founding_member: isFoundingMember,
-        briefs_used_this_period: 0,
-        period_reset_date: periodResetDate.toISOString(),
-      })
-      .eq('user_id', userId)
+    const subscription = {
+      tier,
+      stripe_subscription_id: session.subscription as string,
+      is_founding_member: isFoundingMember,
+      briefs_used_this_period: 0,
+      period_reset_date: periodResetDate.toISOString(),
+    }
+
+    // Insert if the user has no subscription row yet (paid before first brief),
+    // otherwise update in place
+    const { error: writeError } = existing
+      ? await supabaseAdmin
+          .from('signal_subscriptions')
+          .update(subscription)
+          .eq('user_id', userId)
+      : await supabaseAdmin
+          .from('signal_subscriptions')
+          .insert({ user_id: userId, ...subscription })
+
+    if (writeError) {
+      console.error('Supabase write error:', writeError)
+      return NextResponse.json({ error: 'Database write failed' }, { status: 500 })
+    }
   }
 
   if (event.type === 'customer.subscription.deleted') {
     const sub = event.data.object
-    await supabaseAdmin
+    const { error: writeError } = await supabaseAdmin
       .from('signal_subscriptions')
       .update({ tier: 'free', stripe_subscription_id: null })
       .eq('stripe_subscription_id', sub.id)
+
+    if (writeError) {
+      console.error('Supabase write error:', writeError)
+      return NextResponse.json({ error: 'Database write failed' }, { status: 500 })
+    }
   }
 
   return NextResponse.json({ received: true })

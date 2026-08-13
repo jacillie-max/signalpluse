@@ -15,8 +15,20 @@ export async function POST(request: NextRequest) {
 
     const { donor_name, organization, context_notes, brief_id } = await request.json()
 
-    if (!donor_name || !organization) {
+    if (
+      typeof donor_name !== 'string' || !donor_name.trim() || donor_name.length > 200 ||
+      typeof organization !== 'string' || !organization.trim() || organization.length > 200
+    ) {
       return NextResponse.json({ error: 'donor_name and organization are required' }, { status: 400 })
+    }
+
+    if (context_notes != null && (typeof context_notes !== 'string' || context_notes.length > 2000)) {
+      return NextResponse.json({ error: 'context_notes must be a string of at most 2000 characters' }, { status: 400 })
+    }
+
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (typeof brief_id !== 'string' || !UUID_RE.test(brief_id)) {
+      return NextResponse.json({ error: 'Invalid brief_id' }, { status: 400 })
     }
 
     // Ensure subscription exists — auto-create free if missing (e.g. email-confirmed users)
@@ -56,8 +68,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Write to Supabase
-    const { error: writeError } = await supabase
+    // Write to Supabase — .select() confirms a row owned by this user was actually updated
+    const { data: updated, error: writeError } = await supabase
       .from('signal_briefs')
       .update({
         brief_json: briefJson,
@@ -65,9 +77,10 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', brief_id)
       .eq('user_id', user.id)
+      .select('id')
 
-    if (writeError) {
-      console.error('Supabase write error:', writeError)
+    if (writeError || !updated || updated.length === 0) {
+      console.error('Supabase write error:', writeError ?? 'no matching brief row for this user')
       return NextResponse.json({ error: 'Failed to save brief' }, { status: 500 })
     }
 
