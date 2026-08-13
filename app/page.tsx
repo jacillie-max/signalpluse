@@ -34,13 +34,6 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Founding Member Banner */}
-      <div className="bg-[#1E3A5F] text-white py-3 px-6 text-center text-sm">
-        <span className="font-medium">Founding Member pricing ends May 27 — or when 25 members claim it.</span>
-        {' '}Lock in $99/mo before it goes to $199.{' '}
-        <Link href="/pricing" className="underline font-semibold text-[#C8922A]">Claim your spot →</Link>
-      </div>
-
       {/* Hero */}
       <section className="max-w-4xl mx-auto px-6 pt-20 pb-16 text-center">
         <h1 className="text-5xl font-bold text-[#1E3A5F] leading-tight mb-6">
@@ -132,29 +125,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Preview */}
-      <section className="max-w-5xl mx-auto px-6 py-20">
-        <h2 className="text-3xl font-bold text-[#1E3A5F] mb-4 text-center">Start free. Upgrade when Signal earns it.</h2>
-        <p className="text-center text-gray-500 mb-12">Founding Member pricing locks in for 12 months. Cap: 25 members or May 27, 2026.</p>
-        <div className="grid md:grid-cols-4 gap-6">
-          {[
-            { tier: 'Free', price: '$0', briefs: '1 brief, one time', cta: 'Start free — no card', href: '/signup', highlight: false },
-            { tier: 'Solo', price: '$99/mo', was: '$199/mo', briefs: '10 briefs/mo', cta: 'Claim Founding Member', href: '/pricing', highlight: false },
-            { tier: 'Consulting', price: '$249/mo', was: '$499/mo', briefs: '30 briefs/mo', cta: 'Claim Founding Member', href: '/pricing', highlight: true },
-            { tier: 'Org', price: '$999/mo', was: '$1,500/mo', briefs: 'Unlimited', cta: 'Claim Founding Member', href: '/pricing', highlight: false },
-          ].map(({ tier, price, was, briefs, cta, href, highlight }) => (
-            <div key={tier} className={`border rounded-xl p-6 flex flex-col ${highlight ? 'border-[#C8922A] shadow-lg' : 'border-gray-200'}`}>
-              {highlight && <Badge className="bg-[#C8922A] text-white self-start mb-3 text-xs">Most popular</Badge>}
-              <h3 className="font-bold text-lg text-[#1E3A5F]">{tier}</h3>
-              <div className="my-3">
-                <span className="text-2xl font-bold">{price}</span>
-                {was && <span className="text-sm text-gray-400 line-through ml-2">{was}</span>}
-              </div>
-              <p className="text-sm text-gray-500 mb-6">{briefs}</p>
-              <Link href={href} className={cn(buttonVariants({ variant: highlight ? 'default' : 'outline', size: 'sm' }), 'mt-auto', highlight ? 'bg-[#C8922A] hover:bg-[#b07f24] text-white' : '')}>{cta}</Link>
-            </div>
-          ))}
-        </div>
+      {/* Beta CTA */}
+      <section className="max-w-3xl mx-auto px-6 py-20 text-center">
+        <h2 className="text-3xl font-bold text-[#1E3A5F] mb-4">Start free. Upgrade when Signal earns it.</h2>
+        <p className="text-gray-500 mb-8">Signal is in beta. Generate your first brief free — no credit card required.</p>
+        <Link href="/signup" className={cn(buttonVariants({ size: 'lg' }), 'bg-[#C8922A] hover:bg-[#b07f24] text-white text-base px-8')}>Generate your free brief →</Link>
       </section>
 
       {/* Footer */}

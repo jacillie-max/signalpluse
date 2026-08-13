@@ -10,9 +10,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { tier } = await request.json()
+  const { tier } = await request.json().catch(() => ({}))
 
-  if (!STRIPE_PRICE_IDS[tier]) {
+  if (typeof tier !== 'string' || !Object.hasOwn(STRIPE_PRICE_IDS, tier) || !STRIPE_PRICE_IDS[tier]) {
     return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
   }
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     customer_email: user.email,
     metadata: { user_id: user.id, tier },
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=1`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing-hidden`,
   })
 
   return NextResponse.json({ url: session.url })

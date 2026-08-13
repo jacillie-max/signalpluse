@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Signal
 
-## Getting Started
+Signal (bnedsignal.com) is **donor values intelligence** for development professionals.
+It generates research-backed donor briefs that surface what a prospect *values* —
+their causes, public commitments, and alignment with your mission. Signal is values
+intelligence, **not** wealth screening.
 
-First, run the development server:
+**Status: beta.** Pricing is intentionally hidden (`app/pricing-hidden`, unlinked)
+until the beta milestone is reached.
+
+## Tech stack
+
+- [Next.js](https://nextjs.org) (App Router, Turbopack) on Vercel
+- [Supabase](https://supabase.com) — auth + database
+- [Stripe](https://stripe.com) — checkout + webhooks (pricing hidden during beta)
+- Anthropic Claude, Tavily, and ProPublica APIs power brief generation
+
+## Main routes
+
+| Route | Purpose |
+|---|---|
+| `/login`, `/signup`, `/reset-password`, `/update-password` | Auth (`app/(auth)`) |
+| `/onboarding` | Values onboarding flow |
+| `/dashboard` | Briefs list + next moves (`app/(dashboard)/dashboard`) |
+| `/brief/new` | Create a new donor brief |
+| `/brief/[id]` | View a generated brief |
+| `POST /api/briefs/generate` | Brief generation pipeline |
+| `POST /api/stripe/webhook` | Stripe webhook handler |
+| `POST /api/checkout` | Stripe checkout session |
+
+## Environment variables
+
+Names only — values live in Vercel / `.env.local`, never in git:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_APP_URL`
+- `ANTHROPIC_API_KEY`
+- `TAVILY_API_KEY`
+- `RESEND_API_KEY`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRICE_SOLO`
+- `STRIPE_PRICE_ORG`
+- `STRIPE_PRICE_CONSULTING`
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+# create .env.local with the vars listed above
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Verify before pushing:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx tsc --noEmit   # run `npx next typegen` first on a fresh checkout
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> **Note:** this repo pins a Next.js version with breaking changes — read the
+> guides in `node_modules/next/dist/docs/` before writing code (see `AGENTS.md`).
+> Deploys are human-only; see the deploy protocol in `CLAUDE.md`.
