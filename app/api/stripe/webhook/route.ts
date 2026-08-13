@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getStripe } from '@/lib/stripe'
+import { getStripe, STRIPE_PRICE_IDS } from '@/lib/stripe'
 import { createClient } from '@supabase/supabase-js'
 import { FOUNDING_CAP, FOUNDING_DEADLINE } from '@/types/brief'
 
@@ -81,6 +81,30 @@ export async function POST(request: NextRequest) {
       : await supabaseAdmin
           .from('signal_subscriptions')
           .insert({ user_id: userId, ...subscription })
+
+    if (writeError) {
+      console.error('Supabase write error:', writeError)
+      return NextResponse.json({ error: 'Database write failed' }, { status: 500 })
+    }
+  }
+
+  if (event.type === 'customer.subscription.updated') {
+    const sub = event.data.object
+    const priceId = sub.items.data[0]?.price.id
+    const tier = Object.keys(STRIPE_PRICE_IDS).find(
+      t => STRIPE_PRICE_IDS[t] && STRIPE_PRICE_IDS[t] === priceId
+    )
+
+    if (!tier) {
+      // Price doesn't map to a known tier — acknowledge so Stripe doesn't retry
+      console.error('customer.subscription.updated with unknown price:', priceId, sub.id)
+      return NextResponse.json({ received: true })
+    }
+
+    const { error: writeError } = await supabaseAdmin
+      .from('signal_subscriptions')
+      .update({ tier })
+      .eq('stripe_subscription_id', sub.id)
 
     if (writeError) {
       console.error('Supabase write error:', writeError)

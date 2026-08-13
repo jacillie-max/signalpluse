@@ -28,3 +28,25 @@
   a race needing a DB-side constraint; `customer.subscription.updated` events
   are unhandled (dashboard-made plan changes never reach the DB); consider an
   escapeHtml in `lib/email.ts` and prompt delimiters in `lib/brief/claude.ts`.
+
+## 2026-08-12 — Gary (shift 2) + Coordinator
+
+Gary:
+- Webhook now handles `customer.subscription.updated`: price ID reverse-mapped
+  through the server-side STRIPE_PRICE_IDS map, tier updated on the row
+  matched by stripe_subscription_id, 500 on write error, unknown prices
+  logged and acked. Tier-only update: usage, period, and founding status are
+  not reset by mid-cycle plan changes. `cancel_at_period_end` untouched — no
+  column exists for it; needs a schema-change PR if wanted.
+- `lib/email.ts`: escapeHtml applied to donorName, latteStage, nextMove.
+- `lib/brief/claude.ts`: user fields wrapped in a fundraiser_input block with
+  a treat-as-data instruction; output contract unchanged. Tavily/financial
+  context still undelimited — third-party surface for a later pass.
+- Verified: `npx tsc --noEmit` clean, `npm run build` green.
+
+Coordinator (read-only Supabase check):
+- **BLOCKER for beta: the "Signal by bnedsignal" Supabase project
+  (pgpepwqhxtskwymehryv) is INACTIVE/paused**, and no signal_* tables exist
+  in the active BNED project — so Signal's auth, briefs, and subscriptions
+  have no live backend. Restoring the project is one click in the Supabase
+  dashboard and is human-only per Standing Order 5.

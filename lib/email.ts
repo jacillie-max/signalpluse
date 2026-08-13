@@ -10,6 +10,16 @@ function resendClient(): Resend {
 const FROM = 'Signal <noreply@bnedsignal.com>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://bnedsignal.com'
 
+// User-derived strings are interpolated into email HTML — escape them
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 export async function sendBriefReadyEmail(
   to: string,
   donorName: string,
@@ -18,14 +28,19 @@ export async function sendBriefReadyEmail(
   nextMove?: string | null,
 ) {
   const briefUrl = `${APP_URL}/brief/${briefId}`
+  const safeDonorName = escapeHtml(donorName)
+  const safeLatteStage = latteStage ? escapeHtml(latteStage) : latteStage
+  const safeNextMove = nextMove
+    ? escapeHtml(nextMove.length > 120 ? nextMove.slice(0, 117) + '…' : nextMove)
+    : nextMove
 
-  const teaser = latteStage && nextMove
+  const teaser = safeLatteStage && safeNextMove
     ? `
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:28px;">
         <tr>
           <td style="padding:16px 20px;">
-            <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.6px;">Your next move · ${latteStage} stage</p>
-            <p style="margin:0;font-size:14px;color:#374151;line-height:1.6;">${nextMove.length > 120 ? nextMove.slice(0, 117) + '…' : nextMove}</p>
+            <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.6px;">Your next move · ${safeLatteStage} stage</p>
+            <p style="margin:0;font-size:14px;color:#374151;line-height:1.6;">${safeNextMove}</p>
           </td>
         </tr>
       </table>`
@@ -67,9 +82,9 @@ export async function sendBriefReadyEmail(
                 </tr>
               </table>
 
-              <p style="margin:0 0 6px;font-size:24px;font-weight:700;color:#111827;letter-spacing:-0.3px;">Your brief on ${donorName} is ready.</p>
+              <p style="margin:0 0 6px;font-size:24px;font-weight:700;color:#111827;letter-spacing:-0.3px;">Your brief on ${safeDonorName} is ready.</p>
               <p style="margin:0 0 28px;font-size:15px;color:#6b7280;line-height:1.65;">
-                Signal has finished researching ${donorName}'s values, affiliations, and giving patterns — and generated your L.A.T.T.E. cultivation recommendation.
+                Signal has finished researching ${safeDonorName}'s values, affiliations, and giving patterns — and generated your L.A.T.T.E. cultivation recommendation.
               </p>
 
               ${teaser}
